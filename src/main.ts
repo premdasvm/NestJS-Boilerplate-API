@@ -20,14 +20,9 @@ async function bootstrap() {
 
   const options = new DocumentBuilder()
     .setTitle(`Parison's Salesforce API`)
-    .setDescription(
-      `Application Programming Interface For Parison's Salesforce application`,
-    )
+    .setDescription(`Application Programming Interface For Parison's Salesforce application`)
     .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'JWT',
-    )
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'JWT')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
