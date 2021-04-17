@@ -18,6 +18,7 @@ Nest JS Starter Template for Backend APIs,
 - Type Orm Integration
 - User Table with basic Columns
 - Authentication Table with Login Credentials
+- Role Table with basic info for user roles. (id,role_name)
 
   
 
