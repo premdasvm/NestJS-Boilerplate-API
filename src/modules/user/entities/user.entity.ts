@@ -1,5 +1,5 @@
 import { Role } from 'src/modules/general-modules/roles/entities/role.entity';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryColumn, Unique, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
 @Unique(['email'])
@@ -20,15 +20,12 @@ export class User {
   address: string;
 
   @Column()
-  photo: string;
+  image: string;
 
-  @Column()
-  region: number;
-
-  @Column()
-  state: string;
-
-  @Column()
+  @ManyToOne(
+    type => Role,
+    role => role.id,
+  )
   role: number;
 
   @Column({ default: true })

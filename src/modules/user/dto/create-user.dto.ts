@@ -11,11 +11,7 @@ export class CreateUserDto {
 
   @IsString() @IsNotEmpty() address: string;
 
-  @IsString() @IsNotEmpty() photo: string;
-
-  @IsNumber() @IsNotEmpty() region: number;
-
-  @IsString() @IsNotEmpty() state: string;
+  @IsString() @IsNotEmpty() image: string;
 
   @IsNumber() @IsNotEmpty() role: number;
 

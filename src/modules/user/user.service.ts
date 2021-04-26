@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -7,13 +7,14 @@ import { User } from './entities/user.entity';
 import * as byCrypt from 'bcrypt';
 import { userIdGenerator } from '../../common/utils/userId-generator';
 import { Auth } from '../auth/entities/auth.entity';
+import { ChangePasswordDto } from '../general-modules/roles/dto/change-password.dto';
 
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepository: Repository<User>, @InjectRepository(Auth) private authRepository: Repository<Auth>, private connection: Connection) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    let { firstName, lastName, phone, email, address, region, state, password, role, photo } = createUserDto;
+    let { firstName, lastName, phone, email, address, password, role } = createUserDto;
 
     const queryRunner = this.connection.createQueryRunner();
 
@@ -28,10 +29,7 @@ export class UserService {
     newUser.lastName = lastName;
     newUser.email = email;
     newUser.address = address;
-    newUser.region = region;
-    newUser.state = state;
     newUser.role = role;
-    newUser.photo = photo;
 
     newAuth.user_id = newUser.user_id;
     newAuth.phone = phone;
@@ -76,6 +74,16 @@ export class UserService {
     return result;
   }
 
+  async uploadImage(file: Express.Multer.File, id: string) {
+    const result = await this.userRepository.update(id, { image: file.filename });
+
+    if (result.affected <= 0) {
+      throw new InternalServerErrorException(`Update Failed, Please try again!`);
+    }
+
+    return { statusCode: HttpStatus.OK, message: 'Image uploaded successfully' };
+  }
+
   async blockUser(id: number) {
     const result = await this.userRepository.update(id, { activeStatus: true });
 
@@ -94,6 +102,20 @@ export class UserService {
     }
 
     return result;
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto) {
+    let { user_id, password } = changePasswordDto;
+    let salt = await byCrypt.genSalt();
+    let newPassword = await this.hashPassword(password, salt);
+
+    const result = await this.authRepository.update({ user_id }, { password: newPassword, salt });
+
+    if (result.affected <= 0) {
+      throw new InternalServerErrorException(`Something Went wrong could not update password`);
+    }
+
+    return { statusCode: HttpStatus.OK, message: 'Password Changed Successfully' };
   }
 
   async remove(id: number) {
